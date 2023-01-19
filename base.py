@@ -4,7 +4,7 @@ from unit import BaseUnit
 class BaseSingleton(type):
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs) -> dict:
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
@@ -18,12 +18,12 @@ class Arena(metaclass=BaseSingleton):
     game_is_running = False
     battle_result = None
 
-    def start_game(self, player: BaseUnit, enemy: BaseUnit):
+    def start_game(self, player: BaseUnit, enemy: BaseUnit) -> None:
         self.player = player
         self.enemy = enemy
         self.game_is_running = True
 
-    def _check_players_hp(self):
+    def _check_players_hp(self) -> str | None:
         if self.player.hp > 0 and self.enemy.hp > 0:
             return None
 
@@ -36,7 +36,7 @@ class Arena(metaclass=BaseSingleton):
 
         return self._end_game()
 
-    def _stamina_regeneration(self):
+    def _stamina_regeneration(self) -> None:
         units = (self.player, self.enemy)
 
         for unit in units:
@@ -46,7 +46,7 @@ class Arena(metaclass=BaseSingleton):
             else:
                 unit.stamina += self.STAMINA_PER_ROUND
 
-    def next_turn(self):
+    def next_turn(self) -> str | None:
         result = self._check_players_hp()
         if result is not None:
             return result
@@ -55,18 +55,18 @@ class Arena(metaclass=BaseSingleton):
             self._stamina_regeneration()
             return self.enemy.hit(self.player)
 
-    def _end_game(self):
+    def _end_game(self) -> str:
         self._instances = {}
         self.game_is_running = False
         return self.battle_result
 
-    def player_hit(self):
+    def player_hit(self) -> str:
         result = self.player.hit(self.enemy)
         turn_result = self.next_turn()
 
         return f'{result}\n{turn_result}'
 
-    def player_use_skill(self):
+    def player_use_skill(self) -> str:
         result = self.player.use_skill(self.enemy)
         turn_result = self.next_turn()
         return f'{result}\n{turn_result}'
